@@ -1,0 +1,40 @@
+services:
+  # database section
+  company_employee_db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
+    container_name: company_employee_db
+    environment:
+      SA_PASSWORD: 'Passw0rd!'
+      ACCEPT_EULA: 'Y'
+    volumes:
+      - company_employee_db_data:/var/opt/mssql
+    restart: always
+    ports:
+      - '1433:1433'
+  
+  company.employee.api:
+    image: ${DOCKER_REGISTRY-}company-employee-api:${PLATFORM:-linux}-${TAG:-latest}
+    build:
+      context: .
+      dockerfile: src/Application/CompanyEmployees/Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__sqlConnection=Server=company_employee_db,1433;Database=CompanyEmployee;User Id=sa;Password=Passw0rd!;Multipleactiveresultsets=true;TrustServerCertificate=true;Connection Timeout=30;
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/home/app/.aspnet/https/localhost.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password!
+      - SECRET=CodeMazeSecretKey123456789!!!!!!
+    volumes:
+      - ${VOLUME_USERSECRETS}:/home/app/.microsoft/usersecrets:ro
+      - ${VOLUME_HTTPS}:/home/app/.aspnet/https:ro
+    depends_on:
+      - company_employee_db
+
+volumes:
+  company_employee_db_data:
+    external: false
