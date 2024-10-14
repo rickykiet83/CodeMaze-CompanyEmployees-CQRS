@@ -14,8 +14,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Repository;
-using Service;
-using Service.Contracts;
 
 namespace CompanyEmployees.Extensions;
 
@@ -40,9 +38,6 @@ public static class ServiceExtensions
 
     public static void ConfigureRepositoryManager(this IServiceCollection services) =>
         services.AddScoped<IRepositoryManager, RepositoryManager>();
-
-    public static void ConfigureServiceManager(this IServiceCollection services) =>
-        services.AddScoped<IServiceManager, ServiceManager>();
 
     public static void ConfigureSqlContext(this IServiceCollection services, IConfiguration configuration) =>
         services.AddDbContext<RepositoryContext>(opts =>
@@ -95,8 +90,6 @@ public static class ServiceExtensions
         {
             opt.Conventions.Controller<CompaniesController>()
                 .HasApiVersion(new ApiVersion(1, 0));
-            opt.Conventions.Controller<CompaniesV2Controller>()
-                .HasDeprecatedApiVersion(new ApiVersion(2, 0));
         });
     }
 

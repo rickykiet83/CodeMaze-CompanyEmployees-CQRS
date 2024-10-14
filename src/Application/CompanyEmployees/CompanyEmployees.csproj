@@ -22,7 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Infrastructure\LoggerService\LoggerService.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Repository\Repository.csproj" />
-    <ProjectReference Include="..\..\Infrastructure\Service\Service.csproj" />
     <ProjectReference Include="..\CompanyEmployees.Presentation\CompanyEmployees.Presentation.csproj" />
   </ItemGroup>
 
