@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using CompanyEmployees.Presentation.Commands;
+using CompanyEmployees.Presentation.Notifications;
 using CompanyEmployees.Presentation.Queries;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,7 @@ namespace CompanyEmployees.Presentation.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [ApiExplorerSettings(GroupName = "v1")]
-public class CompaniesController(ISender sender) : ApiControllerBase
+public class CompaniesController(ISender sender, IPublisher publisher) : ApiControllerBase
 {
 	/// <summary>
 	/// Gets the list of all companies.
@@ -55,7 +56,7 @@ public class CompaniesController(ISender sender) : ApiControllerBase
 	[HttpDelete("{id:guid}")]
 	public async Task<IActionResult> DeleteCompany(Guid id)
 	{
-		await sender.Send(new DeleteCompanyCommand(id, TrackChanges: false));
+		await publisher.Publish(new CompanyDeletedNotification(id, TrackChanges: false));
 		return NoContent();
 	}
 
