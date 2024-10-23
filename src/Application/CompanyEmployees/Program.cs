@@ -1,6 +1,10 @@
 using CompanyEmployees;
 using CompanyEmployees.Extensions;
 using CompanyEmployees.Presentation.ActionFilters;
+using CompanyEmployees.Presentation.Behaviors;
+using Contracts;
+using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
@@ -17,7 +21,9 @@ builder.Services.ConfigureLoggerService();
 builder.Services.ConfigureRepositoryManager();
 builder.Services.ConfigureSqlContext(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(Program));
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), 
+    typeof(ValidationBehavior<,>));
+// builder.Services.AddExceptionHandler<GlobalExceptionHandler>(); // this is not needed anymore as we are using FluentValidation with MediatR
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
@@ -51,13 +57,14 @@ builder.Services.AddControllers(config =>
 
 builder.Services.AddCustomMediaTypes();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CompanyEmployees.Presentation.AssemblyReference).Assembly));
+builder.Services.AddValidatorsFromAssembly(typeof(CompanyEmployees.Presentation.AssemblyReference).Assembly);
 
 var app = builder.Build();
 
 // since .net 8, we don't need to use the ConfigureExceptionHandler method to inject the logger
-//var logger = app.Services.GetRequiredService<ILoggerManager>();
-//app.ConfigureExceptionHandler(logger);
-app.UseExceptionHandler(opt => { });
+var logger = app.Services.GetRequiredService<ILoggerManager>();
+app.ConfigureExceptionHandler(logger);
+// app.UseExceptionHandler(opt => { });  // this is not needed anymore as we are using FluentValidation with MediatR (using above lines: 65-66)
 
 if (app.Environment.IsProduction())
     app.UseHsts();

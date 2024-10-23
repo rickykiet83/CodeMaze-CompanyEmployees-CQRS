@@ -34,9 +34,6 @@ public class CompaniesController(ISender sender, IPublisher publisher) : ApiCont
 	[HttpPost]
 	public async Task<IActionResult> CreateCompany([FromBody] CompanyForCreationDto companyForCreationDto)
 	{
-		if (companyForCreationDto is null)
-			return BadRequest("CompanyForCreationDto object is null");
-		
 		var company = await sender.Send(new CreateCompanyCommand(companyForCreationDto));
 		return CreatedAtRoute("CompanyById", new { id = company.Id }, company);
 	}
